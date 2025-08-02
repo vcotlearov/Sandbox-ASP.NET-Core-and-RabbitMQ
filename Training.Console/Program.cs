@@ -21,20 +21,16 @@ PrintConsoleHeader();
 
 var cts = SetCancellationToken();
 
-// Pull messages and print them
 try
 {
 	await AnsiConsole.Status().StartAsync("[yellow dim]Listening...[/]", async ctx =>
-{
-	ctx.Spinner(
-		new CustomDotsSpinner());
-	ctx.SpinnerStyle(Style.Parse("yellow dim"));
-
-	
+	{
+		ctx.Spinner(
+			new CustomDotsSpinner());
+		ctx.SpinnerStyle(Style.Parse("yellow dim"));
 		await publisher.PullAsync(async (msg) =>
 		{
 			AnsiConsole.MarkupLine($"[[{DateTime.Now:G}]] \t:bell:");
-
 			AnsiConsole.Write(
 				new JsonText(msg)
 					.BracesColor(Color.Red)
@@ -49,8 +45,7 @@ try
 
 			await Task.CompletedTask;
 		}, cts.Token);
-	
-});
+	});
 }
 catch (TaskCanceledException)
 {
