@@ -16,8 +16,7 @@ try
 	builder.Services.AddSerilog((services, lc) => lc
 		.ReadFrom.Configuration(builder.Configuration)
 		.ReadFrom.Services(services)
-		.Enrich.FromLogContext()
-		.WriteTo.Console());
+		.Enrich.FromLogContext());
 
 	Log.Information("Starting web application");
 
@@ -30,12 +29,6 @@ try
 			WebApiJsonContext.Default,
 			FrameworkJsonContext.Default
 		);
-	});
-
-	builder.Services.AddLogging(logging =>
-	{
-		logging.ClearProviders();
-		logging.AddConsole();
 	});
 
 	var app = builder.Build();
