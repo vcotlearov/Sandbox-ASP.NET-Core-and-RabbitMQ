@@ -10,14 +10,22 @@ namespace Training.WebAPI.Controllers
 	[Route("[controller]")]
 	public class DeviceController(ILogger<DeviceController> logger, IRabbitMqPublisher publisher, RoutingKeyBuilderDirector routingKeyBuilder) : Controller
 	{
-		private readonly ILogger<DeviceController> _logger = logger;
-
 		[HttpPost]
 		[Route("[action]")]
 		public async Task<IActionResult> SwitchState(Device device)
 		{
-			await publisher.PushAsync(routingKeyBuilder.BuildRoutingKey(device), JsonSerializer.Serialize(device));
-			return Ok("Message sent");
+			var message = JsonSerializer.Serialize(device);
+			var key = routingKeyBuilder.BuildRoutingKey(device);
+
+			logger.LogInformation($"Invoking SwitchState for device '{message}'");
+			logger.LogInformation($"Using routing key: '{key}'");
+			logger.LogInformation("Sending message to message broker");
+			
+			var result = await publisher.PushAsync(key, message);
+			var responseText = result ? "Message sent" : "Message could not be sent. Check log for details";
+			logger.LogInformation(responseText);
+
+			return Ok(responseText);
 		}
 	}
 }

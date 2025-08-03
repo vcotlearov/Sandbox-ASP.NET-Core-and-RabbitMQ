@@ -1,19 +1,20 @@
 ﻿using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMQ.Client.Exceptions;
+using Serilog;
 using System.Text;
-using System.Threading.Channels;
 using Training.RabbitMqConnector.Models.Options;
 
 namespace Training.RabbitMqConnector.Connectors;
 public class RabbitMqPublisher : IRabbitMqPublisher
 {
-	private readonly IConnection _connection;
-	private readonly IChannel _channel;
+	private readonly IConnection? _connection;
+	private readonly IChannel? _channel;
 	private readonly string _exchangeName;
 	private readonly string _queueName;
 
-	private RabbitMqPublisher(IConnection connection, IChannel channel, string exchangeName, string queueName)
+	private RabbitMqPublisher(IConnection? connection, IChannel? channel, string exchangeName, string queueName)
 	{
 		_connection = connection;
 		_channel = channel;
@@ -34,7 +35,20 @@ public class RabbitMqPublisher : IRabbitMqPublisher
 			AutomaticRecoveryEnabled = opt.AutomaticRecoveryEnabled
 		};
 
-		var connection = await factory.CreateConnectionAsync();
+		IConnection? connection = null;
+		try
+		{
+			connection = await factory.CreateConnectionAsync();
+			Log.Information($"Established connection with RabbitMQ service at '{opt.HostName}:{opt.Port}' using account '{opt.UserName}'");
+		}
+		catch (BrokerUnreachableException ex)
+		{
+			Log.Fatal($"Unable to establish connection with RabbitMQ service. \n Details: {ex}");
+		}
+
+		if (connection is null)
+			return new RabbitMqPublisher(null, null, opt.ExchangeName, opt.QueueName);
+
 		var channel = await connection.CreateChannelAsync();
 
 		await channel.QueueDeclareAsync(
@@ -47,8 +61,14 @@ public class RabbitMqPublisher : IRabbitMqPublisher
 		return new RabbitMqPublisher(connection, channel, opt.ExchangeName, opt.QueueName);
 	}
 
-	public async Task PushAsync(string key, string message)
+	public async Task<bool> PushAsync(string key, string message)
 	{
+		if (_channel is null)
+		{
+			Log.Error("Cannot push a message. No Channel is defined");
+			return false;
+		}
+
 		var body = Encoding.UTF8.GetBytes(message);
 
 		await _channel.QueueBindAsync(
@@ -60,10 +80,18 @@ public class RabbitMqPublisher : IRabbitMqPublisher
 			exchange: _exchangeName,
 			routingKey: key,
 			body: body);
+
+		return true;
 	}
 
-	public async Task PullAsync(Func<string, Task> onMessageReceived, CancellationToken cancellationToken)
+	public async Task<bool> PullAsync(Func<string, Task> onMessageReceived, CancellationToken cancellationToken)
 	{
+		if (_channel is null)
+		{
+			Log.Error("Cannot pull a message. No Channel is defined");
+			return false;
+		}
+
 		var consumer = new AsyncEventingBasicConsumer(_channel);
 		consumer.ReceivedAsync += async (model, ea) =>
 		{
@@ -88,11 +116,12 @@ public class RabbitMqPublisher : IRabbitMqPublisher
 		}
 
 		await _channel.BasicCancelAsync(consume, cancellationToken: cancellationToken);
+		return true;
 	}
 
 	public async ValueTask DisposeAsync()
 	{
-		await _connection.DisposeAsync();
-		await _channel.DisposeAsync();
+		if (_connection != null) await _connection.DisposeAsync();
+		if (_channel != null) await _channel.DisposeAsync();
 	}
 }

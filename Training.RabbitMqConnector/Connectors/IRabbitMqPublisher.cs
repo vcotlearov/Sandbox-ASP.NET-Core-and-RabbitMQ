@@ -2,8 +2,8 @@
 {
 	public interface IRabbitMqPublisher : IAsyncDisposable
 	{
-		Task PushAsync(string key, string message);
+		Task<bool> PushAsync(string key, string message);
 
-		Task PullAsync(Func<string, Task> onMessageReceived, CancellationToken cancellationToken);
+		Task<bool> PullAsync(Func<string, Task> onMessageReceived, CancellationToken cancellationToken);
 	}
 }

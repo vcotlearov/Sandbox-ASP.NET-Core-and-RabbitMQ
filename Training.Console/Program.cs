@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using Spectre.Console;
 using Spectre.Console.Json;
 using Training.Console;
@@ -7,7 +8,14 @@ using Training.RabbitMqConnector.Connectors;
 using Training.RabbitMqConnector.Extensions;
 using Training.RabbitMqConnector.Models.Options;
 
+Log.Logger = new LoggerConfiguration()
+	.WriteTo.File("logs/log-.log",
+		rollingInterval: RollingInterval.Day,
+		retainedFileCountLimit: 7)
+	.CreateLogger();
+
 using var host = Host.CreateDefaultBuilder(args)
+	.UseSerilog()
 	.ConfigureServices((context, services) =>
 	{
 		services.Configure<RabbitMqOptions>(context.Configuration.GetSection("RabbitMqOptions"));
@@ -16,6 +24,8 @@ using var host = Host.CreateDefaultBuilder(args)
 	.Build();
 
 var publisher = host.Services.GetRequiredService<IRabbitMqPublisher>();
+
+Log.Information("Starting console application");
 
 PrintConsoleHeader();
 
@@ -30,6 +40,8 @@ try
 		ctx.SpinnerStyle(Style.Parse("yellow dim"));
 		await publisher.PullAsync(async (msg) =>
 		{
+			Log.Information($"Message received: {msg}");
+
 			AnsiConsole.MarkupLine($"[[{DateTime.Now:G}]] \t:bell:");
 			AnsiConsole.Write(
 				new JsonText(msg)
@@ -49,6 +61,8 @@ try
 }
 catch (TaskCanceledException)
 {
+	Log.Information($"Connection closed");
+
 	AnsiConsole.MarkupLine("[white dim]Connection closed[/]");
 	AnsiConsole.MarkupLine("[white]Press any key to close the console[/]");
 	Console.ReadKey();
@@ -72,6 +86,7 @@ CancellationTokenSource SetCancellationToken()
 	{
 		e.Cancel = true;
 		cancellationTokenSource.Cancel();
+		Log.Information($"Closing connection to the RabbitMQ");
 		AnsiConsole.MarkupLine("[white dim]Closing connection...[/]");
 	};
 	return cancellationTokenSource;
