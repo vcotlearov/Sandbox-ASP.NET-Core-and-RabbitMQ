@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Training.WebAPI.Models
 {
-	public class Device
+	public class Furniture
 	{
 		[JsonPropertyName("serial_number")]
 		[Required(ErrorMessage = "SerialNumber is required")]
@@ -15,11 +15,5 @@ namespace Training.WebAPI.Models
 		[Required(ErrorMessage = "Name is required")]
 		[StringLength(30, ErrorMessage = "Name can be at most 30 characters long")]
 		public string Name { get; set; } = null!;
-
-		[JsonPropertyName("online")]
-		[Required(ErrorMessage = "Online status is required")]
-		public bool Online { get; set; }
-
-		public string State => Online ? "online" : "offline";
 	}
 }

@@ -1,6 +1,6 @@
 using Serilog;
 using System.Text.Json.Serialization.Metadata;
-using Training.RabbitMqConnector.Extensions;
+using Training.RabbitMqConnector.Connectors;
 using Training.RabbitMqConnector.Models.Options;
 using Training.WebAPI.Builders.RoutingKey;
 using Training.WebAPI.Serialization;
@@ -21,12 +21,14 @@ try
 	Log.Information("Starting web application");
 
 	builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMqOptions"));
-	builder.Services.AddRabbitMqPublisher();
+	builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
+
 	builder.Services.AddSingleton<RoutingKeyBuilderDirector>();
 	builder.Services.AddControllers().AddJsonOptions(options =>
 	{
 		options.JsonSerializerOptions.TypeInfoResolver = JsonTypeInfoResolver.Combine(
-			WebApiJsonContext.Default,
+			DeviceJsonContext.Default,
+			FurnitureJsonContext.Default,
 			FrameworkJsonContext.Default
 		);
 	});

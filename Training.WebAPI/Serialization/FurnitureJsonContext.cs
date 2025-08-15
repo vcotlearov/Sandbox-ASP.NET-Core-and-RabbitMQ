@@ -4,7 +4,7 @@ using Training.WebAPI.Models;
 namespace Training.WebAPI.Serialization;
 
 [JsonSourceGenerationOptions(WriteIndented = true)]
-[JsonSerializable(typeof(Device))]
-public partial class WebApiJsonContext : JsonSerializerContext
+[JsonSerializable(typeof(Furniture))]
+public partial class FurnitureJsonContext : JsonSerializerContext
 {
 }

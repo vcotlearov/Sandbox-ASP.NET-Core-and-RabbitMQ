@@ -2,14 +2,11 @@
 
 namespace Training.WebAPI.Builders.RoutingKey
 {
-	public class DeviceRoutingKeyBuilder : IRoutingKeyBuilder
+	public sealed class DeviceRoutingKeyBuilder : RoutingKeyBuilder<Device>
 	{
-		public bool CanBuild(object entity) => entity is Device;
-
-		public string BuildRoutingKey(object entity)
+		public override string BuildRoutingKey(Device entity)
 		{
-			var device = (Device)entity;
-			return $"device.{device.SerialNumber}.state.{device.State}";
+			return $"device.{entity.SerialNumber}.state.{entity.State}";
 		}
 	}
 }

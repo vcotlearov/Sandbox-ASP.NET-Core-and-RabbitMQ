@@ -4,7 +4,8 @@
 	{
 		private readonly List<IRoutingKeyBuilder> _builders =
 		[
-			new DeviceRoutingKeyBuilder()
+			new DeviceRoutingKeyBuilder(),
+			new FurnitureRoutingKeyBuilder()
 		];
 
 		public string BuildRoutingKey(object entity)
