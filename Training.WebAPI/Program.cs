@@ -23,6 +23,8 @@ try
 	builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMqOptions"));
 	builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
 
+	builder.Services.AddSingleton<IRoutingKeyBuilder, DeviceRoutingKeyBuilder>();
+	builder.Services.AddSingleton<IRoutingKeyBuilder, FurnitureRoutingKeyBuilder>();
 	builder.Services.AddSingleton<RoutingKeyBuilderDirector>();
 	builder.Services.AddControllers().AddJsonOptions(options =>
 	{
