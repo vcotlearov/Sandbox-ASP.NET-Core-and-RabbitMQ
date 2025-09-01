@@ -32,8 +32,7 @@ try
 {
 	Console.OutputEncoding = System.Text.Encoding.UTF8;
 	
-	var cts = SetCancellationToken();
-	await app.RunAsync(cts.Token);
+	await app.RunAsync();
 }
 catch (Exception ex)
 {
@@ -42,17 +41,4 @@ catch (Exception ex)
 finally
 {
 	Log.CloseAndFlush();
-}
-
-return;
-
-CancellationTokenSource SetCancellationToken()
-{
-	var cancellationTokenSource = new CancellationTokenSource();
-	Console.CancelKeyPress += (s, e) =>
-	{
-		e.Cancel = true;
-		cancellationTokenSource.Cancel();
-	};
-	return cancellationTokenSource;
 }
