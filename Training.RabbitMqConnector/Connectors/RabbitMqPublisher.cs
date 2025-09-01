@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
+using System;
 using System.Text;
 using Training.RabbitMqConnector.Models.Options;
 
@@ -58,7 +59,7 @@ public class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger<Rabbit
 		return true;
 	}
 
-	public async Task<bool> PushAsync(string key, string message)
+	public async Task<bool> PushAsync(string key, ReadOnlyMemory<byte> message)
 	{
 		if (_channel is null)
 		{
@@ -69,8 +70,6 @@ public class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger<Rabbit
 			}
 		}
 
-		var body = Encoding.UTF8.GetBytes(message);
-
 		await _channel.QueueBindAsync(
 			queue: _queueName,
 			exchange: _exchangeName,
@@ -79,7 +78,7 @@ public class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger<Rabbit
 		await _channel.BasicPublishAsync(
 			exchange: _exchangeName,
 			routingKey: key,
-			body: body);
+			body: message);
 
 		return true;
 	}

@@ -2,7 +2,7 @@
 {
 	public interface IRabbitMqPublisher : IAsyncDisposable
 	{
-		Task<bool> PushAsync(string key, string message);
+		Task<bool> PushAsync(string key, ReadOnlyMemory<byte> message);
 
 		Task<bool> PullAsync(Func<string, Task> onMessageReceived, CancellationToken cancellationToken);
 	}

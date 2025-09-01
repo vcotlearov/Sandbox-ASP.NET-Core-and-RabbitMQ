@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Training.WebAPI.Models
 {
-	public class Furniture
+	public class Furniture : IModel
 	{
 		[JsonPropertyName("serial_number")]
 		[Required(ErrorMessage = "SerialNumber is required")]
