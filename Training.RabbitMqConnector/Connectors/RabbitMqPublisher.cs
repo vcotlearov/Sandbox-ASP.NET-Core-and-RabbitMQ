@@ -10,6 +10,8 @@ using Training.RabbitMqConnector.Models.Options;
 namespace Training.RabbitMqConnector.Connectors;
 public class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger<RabbitMqPublisher> logger) : IRabbitMqPublisher
 {
+	private readonly SemaphoreSlim _connectionLock = new(1, 1);
+
 	private IConnection? _connection;
 	private IChannel? _channel;
 	private string _exchangeName = string.Empty;
@@ -61,14 +63,7 @@ public class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger<Rabbit
 
 	public async Task<bool> PushAsync(string key, ReadOnlyMemory<byte> message)
 	{
-		if (_channel is null)
-		{
-			if (!await ConnectAsync())
-			{
-				logger.LogError("Cannot push a message. No Channel is defined");
-				return false;
-			}
-		}
+		if (!await EstablishConnectionAsync("Cannot push a message. No Channel is defined")) return false;
 
 		await _channel.QueueBindAsync(
 			queue: _queueName,
@@ -83,16 +78,29 @@ public class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger<Rabbit
 		return true;
 	}
 
-	public async Task<bool> PullAsync(Func<string, Task> onMessageReceived, CancellationToken cancellationToken)
+	private async Task<bool> EstablishConnectionAsync(string customErrorMessage = "Cannot establish connection")
 	{
-		if (_channel is null)
+		if (_channel is not null) return true;
+		await _connectionLock.WaitAsync();
+		try
 		{
-			if (!await ConnectAsync())
+			if (_channel is null && !await ConnectAsync())
 			{
-				logger.LogError("Cannot pull a message. No Channel is defined");
+				logger.LogError(customErrorMessage);
 				return false;
 			}
 		}
+		finally
+		{
+			_connectionLock.Release();
+		}
+
+		return true;
+	}
+
+	public async Task<bool> PullAsync(Func<string, Task> onMessageReceived, CancellationToken cancellationToken)
+	{
+		if (!await EstablishConnectionAsync("Cannot pull a message. No Channel is defined")) return false;
 
 		var consumer = new AsyncEventingBasicConsumer(_channel);
 		consumer.ReceivedAsync += async (model, ea) =>
