@@ -31,7 +31,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: vladdevicestateappacr2025.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_3a2dc34926ef4b4b892eeda92bc5d174 }}/Vlad-device-state-app:${{ github.sha }}
+        tags: vladdevicestateappacr2025.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_3a2dc34926ef4b4b892eeda92bc5d174 }}/vlad-device-state-app:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
