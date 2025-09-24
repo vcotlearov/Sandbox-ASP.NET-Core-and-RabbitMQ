@@ -23,15 +23,14 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: https://vladdevicestateappacr2025.azurecr.io/
-        username: ${{ secrets.AzureAppService_ContainerUsername_3a2dc34926ef4b4b892eeda92bc5d174 }}
-        password: ${{ secrets.AzureAppService_ContainerPassword_6220d15e8ccd4a8fa1c064ae0d00b0f2 }}
+        username: ${{ secrets.AzureAppService_ContainerUsername_fa6b641c96c24ea39ced1753e389ff10 }}
+        password: ${{ secrets.AzureAppService_ContainerPassword_36dc8f678fdf4541b886724a9e5e52b7 }}
 
     - name: Build and push container image to registry
       uses: docker/build-push-action@v3
       with:
-        context: .
         push: true
-        tags: vladdevicestateappacr2025.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_3a2dc34926ef4b4b892eeda92bc5d174 }}/vlad-device-state-app:${{ github.sha }}
+        tags: vladdevicestateappacr2025.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_fa6b641c96c24ea39ced1753e389ff10 }}/vladdevicestateappacr2025/vladdevicestateapp:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -48,5 +47,5 @@ jobs:
       with:
         app-name: 'vlad-device-state-webapp'
         slot-name: 'production'
-        publish-profile: ${{ secrets.AzureAppService_PublishProfile_40d20748ff4049f2a29cc2d155b212a5 }}
-        images: 'vladdevicestateappacr2025.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_3a2dc34926ef4b4b892eeda92bc5d174 }}/Vlad-device-state-app:${{ github.sha }}'
+        publish-profile: ${{ secrets.AzureAppService_PublishProfile_2002b84cbdd440d4abd1f5f40562a727 }}
+        images: 'vladdevicestateappacr2025.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_fa6b641c96c24ea39ced1753e389ff10 }}/vladdevicestateappacr2025/vladdevicestateapp:${{ github.sha }}'
