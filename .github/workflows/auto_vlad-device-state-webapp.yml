@@ -30,7 +30,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.AZURE_ACR_NAME}}.azurecr.io/${{ secrets.AZURE_ACR_NAME}}/$imageName:${{ github.sha }}
+        tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/vladdevicestateapp:${{ github.sha }}
         file: ./Dockerfile
 
   deploy:
@@ -45,4 +45,4 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
-          images: ${{ secrets.AZURE_ACR_NAME}}.azurecr.io/${{ secrets.AZURE_ACR_NAME}}/$imageName:${{ github.sha }}
+          images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/vladdevicestateapp:${{ github.sha }}
