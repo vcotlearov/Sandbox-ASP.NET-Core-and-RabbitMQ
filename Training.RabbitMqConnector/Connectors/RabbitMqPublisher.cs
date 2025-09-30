@@ -38,6 +38,7 @@ public class RabbitMqPublisher(IOptions<RabbitMqOptions> options, ILogger<Rabbit
 		}
 		catch (BrokerUnreachableException ex)
 		{
+			logger.LogInformation($"Host: {opt.HostName}; Port: {opt.Port}; UserName: {opt.UserName}; Password: {opt.Password}");
 			logger.LogCritical($"Unable to establish connection with RabbitMQ service. \n Details: {ex}");
 		}
 
