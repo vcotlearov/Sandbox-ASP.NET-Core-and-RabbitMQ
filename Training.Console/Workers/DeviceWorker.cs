@@ -11,8 +11,8 @@ namespace Training.Console.Workers
 		{
 			logger.LogInformation("Starting console application");
 
-			sink.Print("Press any key to boot the console");
-			sink.ReadKey();
+			//sink.Print("Press any key to boot the console");
+			//sink.ReadKey();
 			
 			sink.PrintHeader("Events");
 
