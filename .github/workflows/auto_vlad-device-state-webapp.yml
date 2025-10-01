@@ -18,20 +18,30 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Log in to  ACR
+    - name: Log in to ACR
       uses: docker/login-action@v2
       with:
         registry: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io
         username: ${{ secrets.AZURE_ACR_USERNAME }}
         password: ${{ secrets.AZURE_ACR_PASSWORD }}
 
-    - name: Build and push container image to registry
+    - name: Build and push Web container image to registry
       uses: docker/build-push-action@v3
       with:
         context: .
         push: true
         tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/vladdevicestateapp:latest
         file: ./Dockerfile
+        target: webapi-final
+	
+    - name: Build and push Console container image to registry
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/training-worker:latest
+        file: ./Dockerfile
+        target: console-final
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,4 +57,3 @@ jobs:
           app-name: ${{ secrets.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/vladdevicestateapp:latest
-
