@@ -10,6 +10,7 @@ namespace Training.Console.Workers
 		public async Task StartAsync(CancellationToken cancellationToken)
 		{
 			logger.LogInformation("Starting console application");
+			logger.LogInformation("Azure device worker - booting up");
 
 			//sink.Print("Press any key to boot the console");
 			//sink.ReadKey();
