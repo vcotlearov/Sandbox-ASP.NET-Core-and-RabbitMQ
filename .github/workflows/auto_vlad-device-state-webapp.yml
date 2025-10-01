@@ -33,7 +33,7 @@ jobs:
         tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/vladdevicestateapp:latest
         file: ./Dockerfile
         target: webapi-final
-	
+
     - name: Build and push Console container image to registry
       uses: docker/build-push-action@v3
       with:
