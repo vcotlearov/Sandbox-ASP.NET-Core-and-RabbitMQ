@@ -11,6 +11,7 @@ using Training.RabbitMqConnector.Models.Options;
 var builder = Host.CreateApplicationBuilder(args);
 
 Log.Logger = new LoggerConfiguration()
+	.WriteTo.Console()
 	.WriteTo.File("logs/log-.log",
 		rollingInterval: RollingInterval.Day,
 		retainedFileCountLimit: 7)
