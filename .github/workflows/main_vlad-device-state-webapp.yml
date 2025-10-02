@@ -27,11 +27,12 @@ jobs:
         password: ${{ secrets.AzureAppService_ContainerPassword_f6c387810fee4811a457e9aedba5be7f }}
 
     - name: Build and push container image to registry
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v6
       with:
         push: true
         tags: vladdevicestateappacr2025.azurecr.io/${{ secrets.AzureAppService_ContainerUsername_2b4199df26c44219b6f0e4e889932ad5 }}/vladdevicestateapp:${{ github.sha }}
         file: ./Dockerfile
+        target: webapi-final
 
   deploy:
     runs-on: ubuntu-latest
