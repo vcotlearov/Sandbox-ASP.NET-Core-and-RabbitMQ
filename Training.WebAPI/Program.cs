@@ -18,7 +18,7 @@ try
 		.ReadFrom.Services(services)
 		.Enrich.FromLogContext());
 
-	Log.Information("Starting web application");
+	Log.Information("Starting web application V2!");
 
 	builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection("RabbitMqOptions"));
 	builder.Services.AddSingleton<IRabbitMqPublisher, RabbitMqPublisher>();
